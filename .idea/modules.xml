@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/FileOP/FileOP.iml" filepath="$PROJECT_DIR$/FileOP/FileOP.iml" />
+      <module fileurl="file://$PROJECT_DIR$/MyData.iml" filepath="$PROJECT_DIR$/MyData.iml" />
+      <module fileurl="file://$PROJECT_DIR$/SharedprefOp/SharedprefOp.iml" filepath="$PROJECT_DIR$/SharedprefOp/SharedprefOp.iml" />
+    </modules>
+  </component>
+</project>
