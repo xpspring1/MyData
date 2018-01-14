@@ -52,5 +52,29 @@
         android:layout_height="wrap_content"
         android:id="@+id/querydata"
         android:text="查询数据"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/phoneCall"
+            android:text="打电话"
+            android:layout_weight="1"/>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/contactInfo"
+            android:text="联系人"
+            android:layout_weight="1"/>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/notification"
+            android:text="发送通知"
+            android:layout_weight="1"/>
+
+    </LinearLayout>
 
 </LinearLayout>

@@ -10,6 +10,7 @@
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/FileOP" />
             <option value="$PROJECT_DIR$/SharedprefOp" />
+            <option value="$PROJECT_DIR$/media" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />

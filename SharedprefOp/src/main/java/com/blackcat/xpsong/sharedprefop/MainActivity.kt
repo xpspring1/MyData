@@ -1,16 +1,31 @@
 package com.blackcat.xpsong.sharedprefop
 
+import android.app.Activity
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.ContentValues
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
+import android.database.Cursor
+import android.graphics.Color
+import android.net.Uri
 import net.sqlcipher.database.SQLiteDatabase
 import net.sqlcipher.database.SQLiteOpenHelper
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.provider.ContactsContract
+import android.support.v4.app.ActivityCompat
+import android.support.v4.app.NotificationCompat
+import android.support.v4.content.ContextCompat
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.ctx
 import org.jetbrains.anko.sdk25.coroutines.onClick
+import org.jetbrains.anko.toast
+import java.io.File
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -24,6 +39,9 @@ class MainActivity : AppCompatActivity() {
             editor.putInt("age",33)
             editor.putBoolean("married",false)
             editor.apply()        }
+        clearBtn.onClick {
+            prefData.setText("")
+        }
         readBtn.onClick {
             var data:String="name is:"+pref.getString("name","")+"   age is: "+pref.getInt("age",0)+"if married is :"+pref.getBoolean("married",true)
             prefData.setText(data)
@@ -71,9 +89,59 @@ class MainActivity : AppCompatActivity() {
             }
             mCursor.close()
         }
+        //拨打电话
+        phoneCall.onClick {
+            if (ContextCompat.checkSelfPermission(ctx,android.Manifest.permission.CALL_PHONE)!=PackageManager.PERMISSION_GRANTED){
+                ActivityCompat.requestPermissions(this@MainActivity, arrayOf("android.permission.CALL_PHONE"),1)
+            }
+            else{
+                var intent= Intent(Intent.ACTION_CALL)
+                //intent.setData(Uri.parse("tel:10010"))
+                intent.data=Uri.parse("tel:10010")
+                startActivity(intent)
+                }
+        }
+        //读取联系人
+        contactInfo.onClick {
+            if (ContextCompat.checkSelfPermission(ctx,android.Manifest.permission.READ_CONTACTS)!=PackageManager.PERMISSION_GRANTED){
+                ActivityCompat.requestPermissions(this@MainActivity, arrayOf("android.permission.READ_CONTACTS"),1)
+            }
+            else{
+                readContact()
+            }
+        }
+        //发送通知
+        notification.onClick {
+            var intent=Intent(ctx,NotifyActivity::class.java)
+            var pi:PendingIntent= PendingIntent.getActivity(ctx,0,intent,0)
+            var nManager=getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            var myNotification=NotificationCompat.Builder(ctx,"testNotify")
+                    .setContentTitle("这是标题")
+                    .setContentText("这是通知正文")
+                    .setWhen(System.currentTimeMillis())
+                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setContentIntent(pi)
+                    .setAutoCancel(true)
+                    //.setSound(Uri.fromFile(File("/system/media/audio/ringtones/Hello_Ya.ogg")))
+                    //.setVibrate(longArrayOf(0,1000,1000,1000,1000,1000))
+                    //.setLights(Color.RED,1000,1000)
+                    .setDefaults(NotificationCompat.DEFAULT_ALL)
+                    .build()
+            nManager.notify(1,myNotification)
+        }
+
 
     }
-
+    fun readContact(){
+        var cursor:Cursor=contentResolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,null,null,null,null)
+        var info:String=""
+        while (cursor.moveToNext()){
+            var name=cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME))
+            var number=cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
+            info=info+name+number
+        }
+        prefData.setText(info)
+    }
     class MySQLiteOpenHelper(context:Context, name:String, factory: SQLiteDatabase.CursorFactory?, version:Int ):SQLiteOpenHelper(context, name, factory, version){
         private val CREATE_BOOK:String=
                 "create table Book("+
