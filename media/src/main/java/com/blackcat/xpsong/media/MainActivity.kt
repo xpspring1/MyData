@@ -1,11 +1,12 @@
 package com.blackcat.xpsong.media
 
+import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.media.MediaPlayer
 import android.net.Uri
-import android.os.Build
-import android.os.Bundle
+import android.os.*
 import android.provider.MediaStore
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
@@ -15,13 +16,22 @@ import com.bumptech.glide.Glide
 import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.ctx
+import org.jetbrains.anko.info
 import org.jetbrains.anko.sdk25.coroutines.onClick
+import org.jetbrains.anko.toast
 import java.io.File
 
 class MainActivity : AppCompatActivity(),AnkoLogger {
     private val TAKE_PHOTO=1
     private val PICK_PHOTO=2
+    private var flag=0
     private lateinit var imageUri:Uri
+    private var myMedia=MediaPlayer()
+    var myHandler=MyHandler()
+    lateinit var myThread:MyThread
+    var allowRunning=true
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -50,6 +60,74 @@ class MainActivity : AppCompatActivity(),AnkoLogger {
                 startActivityForResult(intent,PICK_PHOTO)
             }
         }
+
+        audio_play.onClick {
+            if(ContextCompat.checkSelfPermission(ctx,Manifest.permission.WRITE_EXTERNAL_STORAGE)!=PackageManager.PERMISSION_GRANTED){
+                ActivityCompat.requestPermissions(this@MainActivity, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),1)
+            }else{
+                if(!myMedia.isPlaying){
+                    myMedia.reset()
+                    initMediaPlayer()
+                    allowRunning=true
+                    myThread=MyThread("newThread")
+                    myThread.start()
+                }
+            }
+
+        }
+        audio_kill.onClick {
+            myThread.interrupt()
+            info { if (myThread.isAlive) "线程未死" else "线程已死" }
+            allowRunning=false
+            myMedia.reset()
+        }
+
+        audio_test.onClick {
+            info { if (myThread.isAlive) "线程未死" else "线程已死" }
+        }
+    }
+
+     inner class MyHandler:Handler(){
+         override fun handleMessage(msg: Message?) {
+             super.handleMessage(msg)
+             if (msg?.what==1){
+
+                 myMedia.seekTo(210000)
+                 myMedia.start()
+             }
+         }
+     }
+    inner class MyThread(name:String):Thread(name){
+        var flag="线程在运行"
+        override fun run() {
+            super.run()
+            try {
+                while (allowRunning && !this.isInterrupted) {
+                    info(flag)
+                    var myMsg=Message()
+                    myMsg.what=1
+                    myHandler.sendMessage(myMsg)
+                    sleep(2000)
+                }
+            }
+            catch (e:InterruptedException){
+                e.printStackTrace()
+                flag="线程被打断，不应该看到此提示"
+                info("捕获到打断，执行返回")
+                return
+            }
+        }
+    }
+
+    fun initMediaPlayer(){
+        myMedia.setDataSource(File(Environment.getExternalStorageDirectory(),"funv.mp3").path)
+        myMedia.prepare()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        myMedia.stop()
+        myMedia.release()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -70,4 +148,5 @@ class MainActivity : AppCompatActivity(),AnkoLogger {
         }
 
     }
+
 }

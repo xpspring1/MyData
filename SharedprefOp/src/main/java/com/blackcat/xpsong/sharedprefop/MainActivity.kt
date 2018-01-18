@@ -21,13 +21,15 @@ import android.support.v4.app.NotificationCompat
 import android.support.v4.content.ContextCompat
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_main.*
+import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.ctx
+import org.jetbrains.anko.info
 import org.jetbrains.anko.sdk25.coroutines.onClick
 import org.jetbrains.anko.toast
 import java.io.File
 
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(),AnkoLogger {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -134,12 +136,14 @@ class MainActivity : AppCompatActivity() {
     }
     fun readContact(){
         var cursor:Cursor=contentResolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,null,null,null,null)
-        var info:String=""
+        info(ContactsContract.CommonDataKinds.Phone.CONTENT_URI)
+        var info=""
         while (cursor.moveToNext()){
             var name=cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME))
             var number=cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
             info=info+name+number
         }
+        cursor.close()
         prefData.setText(info)
     }
     class MySQLiteOpenHelper(context:Context, name:String, factory: SQLiteDatabase.CursorFactory?, version:Int ):SQLiteOpenHelper(context, name, factory, version){
