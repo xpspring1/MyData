@@ -1,1 +1,1 @@
-include ':FileOP', ':SharedprefOp', ':media'
+include ':FileOP', ':SharedprefOp', ':media', ':myhttp', ':myservice'

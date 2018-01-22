@@ -69,6 +69,7 @@ class MainActivity : AppCompatActivity(),AnkoLogger {
                     myMedia.reset()
                     initMediaPlayer()
                     allowRunning=true
+                    //线程被打断后，不能直接使用start(),必须先对其重新初始化！
                     myThread=MyThread("newThread")
                     myThread.start()
                 }
@@ -98,7 +99,8 @@ class MainActivity : AppCompatActivity(),AnkoLogger {
          }
      }
     inner class MyThread(name:String):Thread(name){
-        var flag="线程在运行"
+        var count=1
+        var flag="线程第${count}次运行"
         override fun run() {
             super.run()
             try {
@@ -107,7 +109,9 @@ class MainActivity : AppCompatActivity(),AnkoLogger {
                     var myMsg=Message()
                     myMsg.what=1
                     myHandler.sendMessage(myMsg)
-                    sleep(2000)
+                    sleep(26000)
+                    count+=1
+                    flag="线程第${count}次运行"
                 }
             }
             catch (e:InterruptedException){
